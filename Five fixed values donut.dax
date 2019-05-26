@@ -1,0 +1,34 @@
+Five fixed values donut = 
+// ----------- PARAMETERS -----------
+// Set the measures to be used in the pie chart
+VAR _Radius = 50
+VAR _DonutWidth = 10
+VAR _MeasureOne = CALCULATE ( [Sum of Value], FILTER ( Data, Data[Category] = "A" ) )
+VAR _MeasureTwo = CALCULATE ( [Sum of Value], FILTER ( Data, Data[Category] = "B" ) )
+VAR _MeasureThree = CALCULATE ( [Sum of Value], FILTER ( Data, Data[Category] = "C" ) )
+VAR _MeasureFour = CALCULATE ( [Sum of Value], FILTER ( Data, Data[Category] = "D" ) )
+VAR _MeasureFive = CALCULATE ( [Sum of Value], FILTER ( Data, Data[Category] = "E" ) )
+// Set the hex codes for colours for the sections of the pie chart
+VAR _FirstColour = "#01B8AA"
+VAR _SecondColour =  "#374649"
+VAR _ThirdColour = "#FD625E"
+VAR _FourthColour = "#F2C80F"
+VAR _FifthColour = "#FE9666"
+// ----------- END OF PARAMETERS -----------
+VAR _Total = _MeasureOne + _MeasureTwo + _MeasureThree + _MeasureFour + _MeasureFive
+VAR _AngleOne = DIVIDE ( _MeasureOne, _Total ) * 100
+VAR _AngleTwo = DIVIDE ( _MeasureTwo, _Total ) * 100
+VAR _AngleThree = DIVIDE ( _MeasureThree, _Total ) * 100
+VAR _AngleFour = DIVIDE ( _MeasureFour, _Total ) * 100
+VAR _AngleFive = DIVIDE ( _MeasureFive, _Total ) * 100
+RETURN
+"data:image/svg+xml;utf8, " & 
+"<svg width=""100%"" height=""100%"" xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 " & _Radius & " " & _Radius & """ class=""donut"" display=""block"" margin=""auto"">"
+& 
+"<circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & _FirstColour & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & _AngleOne & " " & 100 - _AngleOne & """ stroke-dashoffset=""25""></circle>
+  <circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & _SecondColour & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & _AngleTwo & " " & 100 - _AngleTwo & """ stroke-dashoffset=""" & 100 - _AngleOne + 25 & """></circle>
+  <circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & _ThirdColour & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & _AngleThree & " " & 100 - _AngleThree & """ stroke-dashoffset=""" & 100 - ( _AngleOne + _AngleTwo ) + 25 & """></circle>
+  <circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & _FourthColour & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & _AngleFour & " " & 100 - _AngleFour & """ stroke-dashoffset=""" & 100 - ( _AngleOne + _AngleTwo + _AngleThree ) + 25 & """></circle>
+<circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & _FifthColour & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & _AngleFive & " " & 100 - _AngleFive & """ stroke-dashoffset=""" & 100 - ( _AngleOne + _AngleTwo + _AngleThree + _AngleFour ) + 25 & """></circle>"
+&
+"</svg>"
