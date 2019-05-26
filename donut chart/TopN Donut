@@ -1,0 +1,83 @@
+TopN Donut = 
+// ----------- PARAMETERS -----------
+// Set the measures to be used in the pie chart
+VAR _Radius = 50
+VAR _DonutWidth = 10
+VAR _N = [Top N Number Value]
+VAR _Column = 
+    DISTINCT ( 
+        SELECTCOLUMNS ( Data, "Column", Data[Category] ) // Change this SELECTCOLUMNS to point to the correct column. 
+    )
+// Create the virtual table that will be iterated for each item
+VAR _PreTable = 
+TOPN (
+    _N,
+    ADDCOLUMNS (
+        ADDCOLUMNS ( 
+            _Column, 
+            "Measure", [Sum of Value] // Change this measure to point to the correct measure.
+        ),
+        "Index", 
+        VAR _CurrentCategory = [Column]
+        RETURN
+        RANKX (
+            _Column, 
+            [Column], , ASC, Dense
+        )
+    ),
+    [Index]
+)
+// ----------- END OF PARAMETERS -----------
+VAR _Total = SUMX ( _PreTable, [Measure] )
+// Set the hex codes for colours for the sections of the pie chart, do not include the # 
+VAR _Colour1 = "#01B8AA"
+VAR _Colour2 = "#374649"
+VAR _Colour3 = "#FD625E"
+VAR _Colour4 = "#F2C80F"
+VAR _Colour5 = "#FE9666"
+// Add the colours to the virtual table
+VAR _ColourCount = 5 // Set this to the number of colours specified below so that the colours can loop
+VAR _Table = 
+    ADDCOLUMNS ( 
+        _PreTable,
+        "Colour", 
+        SWITCH (
+            MOD ( [Index], _ColourCount + 1 ),
+            1, _Colour1,
+            2, _Colour2,
+            3, _Colour3,
+            4, _Colour4,
+            5, _Colour5,
+            "#FF0000"
+        )
+    )
+RETURN
+"data:image/svg+xml;utf8, " & 
+"<svg width=""100%"" height=""100%"" xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 " & _Radius & " " & _Radius & """ class=""donut"" display=""block"" margin=""auto"">"
+& 
+CONCATENATEX (
+    _Table,
+    "<circle class=""segment"" cx=""" & _Radius / 2 & """ cy=""" & _Radius / 2 & """ r=""15.91549430918954"" fill=""transparent"" stroke=""" & [Colour] & """ stroke-width=""" & _DonutWidth & """ stroke-dasharray=""" & DIVIDE ( [Measure], _Total ) * 100 & " " & 100 - ( DIVIDE ( [Measure], _Total ) * 100 ) & """ stroke-dashoffset=""" 
+    & 
+    IF ( 
+        [Index] = 1, 
+        25, 
+        (
+            100 -  
+            VAR _CurrentIndex = [Index] 
+            RETURN 
+            ( 
+                DIVIDE ( 
+                SUMX ( 
+                    FILTER ( _Table, [Index] < _CurrentIndex ), 
+                    [Measure]
+                ), 
+                _Total 
+                ) * 100
+            ) 
+        ) + 25 
+    ) 
+    & """></circle>"
+)
+&
+"</svg>"
