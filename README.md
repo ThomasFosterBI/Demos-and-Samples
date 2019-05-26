@@ -1,2 +1,2 @@
-# DAX-and-PowerQuery
-Any DAX or Power Query used as samples or demos in posts on FosterBI.co.uk
+# Demos and Samples
+Any samples or demos usedin posts on FosterBI.co.uk
